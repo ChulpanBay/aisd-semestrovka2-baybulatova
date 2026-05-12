@@ -1,6 +1,5 @@
 public class SplayTree<T extends Comparable<T>> implements Tree<T>{
     private Node<T> root;
-    // Counters for iterations
     private int insertIterations = 0;
     private int deleteIterations = 0;
     private int searchIterations = 0;
