@@ -1,32 +1,67 @@
 public class SplayTree<T extends Comparable<T>> implements Tree<T>{
     private Node<T> root;
+    // Counters for iterations
+    private int insertIterations = 0;
+    private int deleteIterations = 0;
+    private int searchIterations = 0;
+
     public Node<T> getRoot() {
         return root;
     }
+
+    public int getInsertIterations() {
+        return insertIterations;
+    }
+
+    public int getDeleteIterations() {
+        return deleteIterations;
+    }
+
+    public int getSearchIterations() {
+        return searchIterations;
+    }
+
+    public void resetIterationCounters() {
+        insertIterations = 0;
+        deleteIterations = 0;
+        searchIterations = 0;
+    }
+
     @Override
     public Node<T> insert(T value) {
-        root = insert(root,new Node<>(value));
+        insertIterations = 0;
+        root = insert(root, new Node<>(value));
         return root;
     }
+
     private Node<T> insert(Node<T> node, Node<T> nodeAdded){
+        insertIterations++;
         if (node == null) {
             return nodeAdded;
         }
         if (nodeAdded.getValue().compareTo(node.getValue()) < 0) {
             node.setLeftChild(insert(node.getLeftChild(), nodeAdded));
-            node.getLeftChild().setParentNode(node);
+            if (node.getLeftChild() != null) {
+                node.getLeftChild().setParentNode(node);
+            }
         } else if (nodeAdded.getValue().compareTo(node.getValue()) > 0) {
             node.setRightChild(insert(node.getRightChild(), nodeAdded));
-            node.getRightChild().setParentNode(node);
+            if (node.getRightChild() != null) {
+                node.getRightChild().setParentNode(node);
+            }
         }
         return node;
     }
+
     @Override
     public Node<T> delete(T value) {
-        root = delete(value,root);
+        deleteIterations = 0;
+        root = delete(value, root);
         return root;
     }
+
     public Node<T> delete(T data, Node<T> node) {
+        deleteIterations++;
         if (node == null) return null;
 
         if (data.compareTo(node.getValue()) < 0) {
@@ -47,8 +82,10 @@ public class SplayTree<T extends Comparable<T>> implements Tree<T>{
 
     @Override
     public Node<T> search(T value) {
+        searchIterations = 0;
         Node<T> node = root;
         while (node != null) {
+            searchIterations++;
             if (node.getValue().compareTo(value) == 0) {
                 splay(node);
                 return node;
@@ -57,21 +94,26 @@ public class SplayTree<T extends Comparable<T>> implements Tree<T>{
         }
         return null;
     }
+
     @Override
     public Node<T> searchRecurs(T value) {
-        return search(root,value);
+        searchIterations = 0;
+        return search(root, value);
     }
+
     public Node<T> search(Node<T> node, T data) {
         if (node != null) {
+            searchIterations++;
             if (node.getValue().compareTo(data) == 0) {
                 splay(node);
                 return node;
             }
             Node<T> nextNode = data.compareTo(node.getValue()) > 0 ? node.getRightChild() : node.getLeftChild();
-            search(nextNode, data);
+            return search(nextNode, data);
         }
         return null;
     }
+
     private void splay(Node<T> node) {
         while (node != root) {
             Node<T> parent = node.getParentNode();
@@ -129,6 +171,7 @@ public class SplayTree<T extends Comparable<T>> implements Tree<T>{
         rightNode.setLeftChild(node);
         node.setParentNode(rightNode);
     }
+
     private void updateChildrenOfParentNode(Node<T> node, Node<T> tempNode) {
         if (node.getParentNode() == null) {
             root = tempNode;
@@ -138,6 +181,7 @@ public class SplayTree<T extends Comparable<T>> implements Tree<T>{
             node.getParentNode().setRightChild(tempNode);
         }
     }
+
     @Override
     public T getMax() {
         if (isEmpty()) {
